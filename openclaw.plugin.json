@@ -1,0 +1,12 @@
+{
+  "id": "helpscout",
+  "name": "HelpScout",
+  "description": "Receives HelpScout webhooks and provides tools for conversation management",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  }
+}
