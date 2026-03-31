@@ -1,4 +1,5 @@
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
+import { loadPluginConfig } from "./config.js";
 
 export default definePluginEntry({
   id: "helpscout",
@@ -6,11 +7,13 @@ export default definePluginEntry({
   description: "Receives HelpScout webhooks and provides tools for conversation management",
 
   register(api) {
-    api.logger.info("HelpScout plugin registering");
+    const config = loadPluginConfig(api.pluginConfig);
+    api.logger.info("HelpScout plugin loaded", {
+      gatewayPort: config.gatewayPort,
+      agentId: config.agentId,
+    });
 
-    // Units 2-5 will populate this with:
-    // - Config validation
-    // - HelpScout API tools (registerTool)
-    // - Webhook HTTP route (registerHttpRoute)
+    // Unit 3-4: HelpScout API tools will be registered here
+    // Unit 5: Webhook HTTP route will be registered here
   },
 });

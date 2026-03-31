@@ -6,7 +6,47 @@
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
-    "properties": {},
-    "required": []
+    "properties": {
+      "webhookSecret": {
+        "type": "string",
+        "description": "HelpScout webhook HMAC-SHA1 secret for signature verification"
+      },
+      "helpscoutUserId": {
+        "type": "string",
+        "description": "Nick's HelpScout user ID for loop prevention (filters out self-triggered agent reply events)"
+      },
+      "gatewayPort": {
+        "type": "number",
+        "description": "Gateway HTTP port for localhost POST to /hooks/agent",
+        "default": 18789
+      },
+      "agentId": {
+        "type": "string",
+        "description": "OpenClaw agent ID to target for webhook-triggered sessions",
+        "default": "hooks"
+      }
+    },
+    "required": ["webhookSecret", "helpscoutUserId"]
+  },
+  "uiHints": {
+    "webhookSecret": {
+      "label": "Webhook Secret",
+      "sensitive": true,
+      "help": "The secret key configured in HelpScout's webhook settings (Manage > Apps > Webhooks)"
+    },
+    "helpscoutUserId": {
+      "label": "HelpScout User ID",
+      "help": "The HelpScout user ID of the agent account this plugin authenticates as"
+    },
+    "gatewayPort": {
+      "label": "Gateway Port",
+      "help": "The local HTTP port the OpenClaw gateway listens on",
+      "advanced": true
+    },
+    "agentId": {
+      "label": "Agent ID",
+      "help": "Which OpenClaw agent should handle webhook events",
+      "advanced": true
+    }
   }
 }
