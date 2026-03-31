@@ -1,5 +1,9 @@
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { loadPluginConfig } from "./config.js";
+import { TokenStore } from "./token-store.js";
+import { HelpScoutClient } from "./helpscout-client.js";
+import { registerHelpscoutTools } from "./tools.js";
+import { registerWebhookRoute } from "./webhook.js";
 
 export default definePluginEntry({
   id: "helpscout",
@@ -8,12 +12,29 @@ export default definePluginEntry({
 
   register(api) {
     const config = loadPluginConfig(api.pluginConfig);
-    api.logger.info("HelpScout plugin loaded", {
-      gatewayPort: config.gatewayPort,
-      agentId: config.agentId,
+
+    // Token store: bootstraps from env vars, persists refreshed tokens to state dir
+    const stateDir = api.runtime.state.resolveStateDir();
+    const tokenStore = new TokenStore(stateDir, {
+      clientId: config.helpscoutClientId,
+      clientSecret: config.helpscoutClientSecret,
+      accessToken: config.helpscoutAccessToken,
+      refreshToken: config.helpscoutRefreshToken,
     });
 
-    // Unit 3-4: HelpScout API tools will be registered here
-    // Unit 5: Webhook HTTP route will be registered here
+    // API client
+    const client = new HelpScoutClient(tokenStore, api.logger);
+
+    // Register tools (get conversation, search, reply, update status, list inboxes)
+    registerHelpscoutTools(api, client);
+
+    // Register webhook HTTP route
+    registerWebhookRoute(api, config);
+
+    api.logger.info("HelpScout plugin registered", {
+      gatewayPort: config.gatewayPort,
+      agentId: config.agentId,
+      webhookRoute: "/helpscout/webhook",
+    });
   },
 });
