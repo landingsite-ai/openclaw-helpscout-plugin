@@ -10,9 +10,10 @@
  * Environment variables (global .env):
  *   - HELPSCOUT_CLIENT_ID: OAuth app client ID
  *   - HELPSCOUT_CLIENT_SECRET: OAuth app client secret
- *   - HELPSCOUT_ACCESS_TOKEN: Initial access token (bootstrap)
- *   - HELPSCOUT_REFRESH_TOKEN: Initial refresh token (bootstrap)
  *   - OPENCLAW_HOOKS_TOKEN: Token for POST to /hooks/agent and /hooks/wake
+ *
+ * Access tokens are minted on demand via the client_credentials grant — no
+ * bootstrap access/refresh tokens to manage.
  */
 
 export interface HelpScoutPluginConfig {
@@ -22,8 +23,6 @@ export interface HelpScoutPluginConfig {
   agentId: string;
   helpscoutClientId: string;
   helpscoutClientSecret: string;
-  helpscoutAccessToken: string;
-  helpscoutRefreshToken: string;
   openclawHooksToken: string;
 }
 
@@ -42,8 +41,6 @@ export function loadPluginConfig(pluginConfig: Record<string, unknown>): HelpSco
 
   const helpscoutClientId = process.env.HELPSCOUT_CLIENT_ID;
   const helpscoutClientSecret = process.env.HELPSCOUT_CLIENT_SECRET;
-  const helpscoutAccessToken = process.env.HELPSCOUT_ACCESS_TOKEN;
-  const helpscoutRefreshToken = process.env.HELPSCOUT_REFRESH_TOKEN;
   const openclawHooksToken = process.env.OPENCLAW_HOOKS_TOKEN;
 
   if (!helpscoutClientId) {
@@ -51,12 +48,6 @@ export function loadPluginConfig(pluginConfig: Record<string, unknown>): HelpSco
   }
   if (!helpscoutClientSecret) {
     throw new Error("[helpscout] Missing required env var: HELPSCOUT_CLIENT_SECRET");
-  }
-  if (!helpscoutAccessToken) {
-    throw new Error("[helpscout] Missing required env var: HELPSCOUT_ACCESS_TOKEN");
-  }
-  if (!helpscoutRefreshToken) {
-    throw new Error("[helpscout] Missing required env var: HELPSCOUT_REFRESH_TOKEN");
   }
   if (!openclawHooksToken) {
     throw new Error("[helpscout] Missing required env var: OPENCLAW_HOOKS_TOKEN");
@@ -69,8 +60,6 @@ export function loadPluginConfig(pluginConfig: Record<string, unknown>): HelpSco
     agentId,
     helpscoutClientId,
     helpscoutClientSecret,
-    helpscoutAccessToken,
-    helpscoutRefreshToken,
     openclawHooksToken,
   };
 }

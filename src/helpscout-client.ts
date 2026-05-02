@@ -22,19 +22,12 @@ export class HelpScoutClient {
     private logger: Logger,
   ) {}
 
-  private async ensureAccessToken(): Promise<string> {
-    if (this.tokenStore.isExpired()) {
-      return this.tokenStore.refresh(this.logger);
-    }
-    return this.tokenStore.getTokens().accessToken;
-  }
-
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
     isRetry = false,
   ): Promise<T> {
-    const token = await this.ensureAccessToken();
+    const token = await this.tokenStore.getAccessToken(this.logger);
 
     const response = await fetch(`${HELPSCOUT_API_BASE}${endpoint}`, {
       ...options,
@@ -45,11 +38,10 @@ export class HelpScoutClient {
       },
     });
 
-    // On 401, try refreshing the token once
+    // On 401, mint a new token and retry once
     if (response.status === 401 && !isRetry) {
-      this.logger.info("[helpscout] Got 401, attempting token refresh");
+      this.logger.info("[helpscout] Got 401, minting fresh access token");
       this.tokenStore.invalidate();
-      await this.tokenStore.refresh(this.logger);
       return this.request<T>(endpoint, options, true);
     }
 

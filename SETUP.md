@@ -31,20 +31,18 @@ List installed plugins with `openclaw plugins list`. Remove with `openclaw plugi
 Add to `~/.openclaw/.env`:
 
 ```bash
-# HelpScout OAuth credentials
+# HelpScout OAuth credentials (the plugin mints access tokens on demand)
 HELPSCOUT_CLIENT_ID=your_client_id
 HELPSCOUT_CLIENT_SECRET=your_client_secret
-HELPSCOUT_ACCESS_TOKEN=your_initial_access_token
-HELPSCOUT_REFRESH_TOKEN=your_initial_refresh_token
 
 # HelpScout webhook secret (from HelpScout UI: Manage > Apps > Webhooks)
 HELPSCOUT_WEBHOOK_SECRET=your_webhook_secret
 
-# OpenClaw gateway hooks token (already set if hooks are enabled)
+# OpenClaw gateway hooks token (any random value; same value goes into hooks.token)
 OPENCLAW_HOOKS_TOKEN=your_hooks_token
 ```
 
-The access and refresh tokens are bootstrap values from the current OAuth session. After the first token refresh, the plugin persists new tokens to its state directory automatically.
+The plugin uses the `client_credentials` OAuth2 grant, so the client id and secret alone are enough — no bootstrap access or refresh tokens needed. Minted tokens are cached to the plugin state dir and re-minted automatically on expiry.
 
 ## 3. Configure the plugin in gateway config
 

@@ -14,13 +14,11 @@ export default definePluginEntry({
   register(api) {
     const config = loadPluginConfig(api.pluginConfig);
 
-    // Token store: bootstraps from env vars, persists refreshed tokens to state dir
+    // Token store: mints access tokens on demand via client_credentials grant
     const stateDir = api.runtime.state.resolveStateDir(process.env);
     const tokenStore = new TokenStore(stateDir, {
       clientId: config.helpscoutClientId,
       clientSecret: config.helpscoutClientSecret,
-      accessToken: config.helpscoutAccessToken,
-      refreshToken: config.helpscoutRefreshToken,
     });
 
     // API client
