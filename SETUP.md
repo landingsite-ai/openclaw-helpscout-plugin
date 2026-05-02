@@ -2,11 +2,21 @@
 
 ## 1. Install the plugin
 
+From GitHub (production):
+
 ```bash
-openclaw plugins install /path/to/openclaw-helpscout-plugin
-# or when published:
-# openclaw plugins install @landingsite/openclaw-helpscout
+openclaw plugins install git:github.com/landingsite-ai/openclaw-helpscout-plugin
+# pin to a ref:
+# openclaw plugins install git:github.com/landingsite-ai/openclaw-helpscout-plugin@main
 ```
+
+From a local checkout (development — `--link` keeps your edits live):
+
+```bash
+openclaw plugins install --link /path/to/openclaw-helpscout-plugin
+```
+
+Update later with `openclaw plugins update helpscout`, list with `openclaw plugins list`, remove with `openclaw plugins uninstall helpscout`.
 
 ## 2. Add environment variables to global `.env`
 
