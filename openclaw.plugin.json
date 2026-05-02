@@ -38,8 +38,7 @@
         "description": "OpenClaw agent ID to target for webhook-triggered sessions",
         "default": "hooks"
       }
-    },
-    "required": ["webhookSecret", "helpscoutUserId"]
+    }
   },
   "uiHints": {
     "webhookSecret": {
