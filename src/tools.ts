@@ -5,6 +5,8 @@
  * get conversation, search, send reply, update status, list inboxes.
  */
 
+import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { Type } from "@sinclair/typebox";
 import type { HelpScoutClient } from "./helpscout-client.js";
 
@@ -38,7 +40,17 @@ function err(error: unknown): ToolResult {
   };
 }
 
-export function registerHelpscoutTools(api: PluginApi, client: HelpScoutClient): void {
+function sanitizeFilename(name: string): string {
+  const base = name.replace(/[/\\]/g, "_").replace(/^\.+/, "");
+  const cleaned = base.replace(/[^A-Za-z0-9._\- ]/g, "_").trim();
+  return cleaned.length > 0 ? cleaned.slice(0, 200) : "attachment";
+}
+
+export function registerHelpscoutTools(
+  api: PluginApi,
+  client: HelpScoutClient,
+  attachmentsDir: string,
+): void {
   // -- helpscout_list_inboxes --------------------------------------------------
 
   api.registerTool({
@@ -319,5 +331,42 @@ STATUS OPTIONS:
     },
   });
 
-  api.logger.info("Registered 5 HelpScout tools");
+  // -- helpscout_download_attachment -------------------------------------------
+
+  api.registerTool({
+    name: "helpscout_download_attachment",
+    description: `Downloads a HelpScout attachment to the plugin's state directory and returns the local file path.
+
+Use the attachment metadata returned by helpscout_get_conversation (each thread's \`attachments\` array contains the \`id\` and \`filename\`) to call this tool. Pass both \`attachmentId\` and \`filename\`.
+
+Returns: { path, filename, attachmentId, size } — \`path\` is an absolute path on the local filesystem.`,
+    parameters: Type.Object({
+      attachmentId: Type.Number({ description: "The attachment ID from a thread's attachments array" }),
+      filename: Type.String({ description: "The filename from the attachment metadata; used to name the saved file" }),
+    }),
+    execute: async (_id, params) => {
+      try {
+        const attachmentId = params.attachmentId as number;
+        const filename = sanitizeFilename(params.filename as string);
+
+        const base64 = await client.getAttachmentData(attachmentId);
+        const buffer = Buffer.from(base64, "base64");
+
+        mkdirSync(attachmentsDir, { recursive: true });
+        const path = join(attachmentsDir, `${attachmentId}-${filename}`);
+        writeFileSync(path, buffer);
+
+        return ok({
+          path,
+          filename,
+          attachmentId,
+          size: buffer.length,
+        });
+      } catch (error) {
+        return err(error);
+      }
+    },
+  });
+
+  api.logger.info("Registered 6 HelpScout tools");
 }

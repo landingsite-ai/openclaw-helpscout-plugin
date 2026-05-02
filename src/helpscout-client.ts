@@ -202,6 +202,17 @@ export class HelpScoutClient {
     }
   }
 
+  async getAttachmentData(attachmentId: number): Promise<string> {
+    this.logger.info("[helpscout] Downloading attachment", { attachmentId });
+    const data = await this.request<{ data: string }>(
+      `/attachments/${attachmentId}/data`,
+    );
+    if (!data.data) {
+      throw new Error(`Attachment ${attachmentId} returned no data`);
+    }
+    return data.data;
+  }
+
   async updateConversationStatus(
     conversationId: number,
     status: "active" | "closed" | "open" | "pending" | "spam",

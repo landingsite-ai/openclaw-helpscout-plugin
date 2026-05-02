@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { loadPluginConfig } from "./config.js";
 import { TokenStore } from "./token-store.js";
@@ -14,7 +15,7 @@ export default definePluginEntry({
     const config = loadPluginConfig(api.pluginConfig);
 
     // Token store: bootstraps from env vars, persists refreshed tokens to state dir
-    const stateDir = api.runtime.state.resolveStateDir();
+    const stateDir = api.runtime.state.resolveStateDir(process.env);
     const tokenStore = new TokenStore(stateDir, {
       clientId: config.helpscoutClientId,
       clientSecret: config.helpscoutClientSecret,
@@ -25,8 +26,9 @@ export default definePluginEntry({
     // API client
     const client = new HelpScoutClient(tokenStore, api.logger);
 
-    // Register tools (get conversation, search, reply, update status, list inboxes)
-    registerHelpscoutTools(api, client);
+    // Register tools (get conversation, search, reply, update status, list inboxes, download attachment)
+    const attachmentsDir = join(stateDir, "attachments");
+    registerHelpscoutTools(api, client, attachmentsDir);
 
     // Register webhook HTTP route
     registerWebhookRoute(api, config);

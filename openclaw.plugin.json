@@ -3,6 +3,19 @@
   "name": "HelpScout",
   "description": "Receives HelpScout webhooks and provides tools for conversation management",
   "version": "0.1.0",
+  "contracts": {
+    "tools": [
+      "helpscout_list_inboxes",
+      "helpscout_search_conversations",
+      "helpscout_get_conversation",
+      "helpscout_send_reply",
+      "helpscout_update_status",
+      "helpscout_download_attachment"
+    ]
+  },
+  "activation": {
+    "onStartup": true
+  },
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
